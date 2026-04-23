@@ -666,7 +666,7 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
         )}
 
         <div className="mt-8 text-center text-xs text-white/60">
-          made by ejika
+          made by null
         </div>
         <ShareModal
           open={showShareModal}

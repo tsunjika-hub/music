@@ -7,6 +7,7 @@ const results = {
     composer: "德彪西 Claude Debussy",
     era: "印象派",
     emoji: "🌙",
+    avatar:"/avatars/debussy.png",
     color: "from-slate-900 via-indigo-900 to-blue-950",
     tags: ["安静", "细腻", "感受力强", "有一点疏离"],
     description:
@@ -22,6 +23,7 @@ const results = {
     composer: "维瓦尔第 Antonio Vivaldi",
     era: "巴洛克",
     emoji: "🌿",
+    avatar:"/avatars/vivaldi.png",
     color: "from-emerald-500 via-lime-400 to-yellow-500",
     tags: ["有活力", "外向", "行动派", "感染力强"],
     description:
@@ -37,6 +39,7 @@ const results = {
     composer: "贝多芬 Ludwig van Beethoven",
     era: "古典主义 / 浪漫主义过渡",
     emoji: "⚡",
+    avatar:"/avatars/beethoven.png",
     color: "from-zinc-900 via-neutral-800 to-stone-700",
     tags: ["意志强", "不服输", "有压迫感", "能扛事"],
     description:
@@ -51,6 +54,7 @@ const results = {
     composer: "帕赫贝尔 Johann Pachelbel",
     era: "巴洛克",
     emoji: "🕊️",
+    avatar:"/avatars/pachelbel.png",
     color: "from-amber-700 via-orange-700 to-rose-700",
     tags: ["温柔", "稳定", "有陪伴感", "容易被依赖"],
     description:
@@ -66,6 +70,7 @@ const results = {
     composer: "莫扎特 Wolfgang Amadeus Mozart",
     era: "古典主义",
     emoji: "🕯️",
+    avatar:"/avatars/mozart.png",
     color: "from-slate-800 via-slate-700 to-gray-500",
     tags: ["共情力高", "深沉", "记忆感强", "情绪浓"],
     description:
@@ -81,6 +86,7 @@ const results = {
     composer: "莫扎特 Wolfgang Amadeus Mozart",
     era: "古典主义",
     emoji: "🎹",
+    avatar:"/avatars/mozart.png",
     color: "from-pink-400 via-rose-400 to-orange-300",
     tags: ["机灵", "节奏感强", "有趣", "不喜欢无聊"],
     description:
@@ -199,6 +205,7 @@ const results = {
   const [step, setStep] = useState(0);
   const [scores, setScores] = useState({});
   const [finished, setFinished] = useState(false);
+  const [showRankingPage, setShowRankingPage] = useState(false);
 
   const progress = ((step + 1) / questions.length) * 100;
 
@@ -224,6 +231,15 @@ const results = {
 
   const result = results[resultKey];
 
+    const rankingData = [
+    { rank: 1, key: "clair_de_lune", code: "MOON", name: "月光型", count: 3884, percent: 9.5 },
+    { rank: 2, key: "spring", code: "SPRING", name: "春风型", count: 3153, percent: 7.7 },
+    { rank: 3, key: "fifth", code: "FATE", name: "命运型", count: 3105, percent: 7.6 },
+    { rank: 4, key: "canon", code: "CANON", name: "卡农型", count: 2531, percent: 6.2 },
+    { rank: 5, key: "lacrimosa", code: "REQUIEM", name: "安魂型", count: 2210, percent: 5.4 },
+    { rank: 6, key: "turkish_march", code: "TURKISH", name: "进行曲型", count: 1988, percent: 4.9 },
+  ];
+
   const restart = () => {
     setStarted(false);
     setStep(0);
@@ -240,6 +256,88 @@ const results = {
       alert("复制失败，不过你可以手动截图分享");
     }
   };
+
+  if (showRankingPage) {
+  return (
+    <RankingPage
+      rankingData={rankingData}
+      results={results}
+      onBack={() => setShowRankingPage(false)}
+    />
+   );
+  }
+
+  function RankingPage({ rankingData, results, onBack }) {
+  return (
+    <div className="min-h-screen bg-[#f0f2ee] px-6 py-10 text-zinc-800">
+      <div className="mx-auto max-w-4xl">
+        <h1 className="text-4xl font-bold md:text-5xl">古典乐结果排行榜</h1>
+
+        <p className="mt-4 text-lg leading-8 text-zinc-600">
+          这里展示不同测试结果的人气分布。当前先使用演示数据，后续可以接入真实统计。
+        </p>
+
+        <div className="mt-6 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-6 py-3 text-lg font-semibold text-emerald-700">
+          已有 40,998 人完成测试
+        </div>
+
+        <div className="mt-8 space-y-4">
+          {rankingData.map((item) => {
+            const result = results[item.key];
+
+            return (
+              <div
+                key={item.key}
+                className="rounded-[1.75rem] border border-zinc-200 bg-white p-5 shadow-sm"
+              >
+                <div className="grid grid-cols-[56px_64px_1fr_auto] items-center gap-4">
+                  <div className="text-4xl font-bold text-amber-500">{item.rank}</div>
+
+                  <img
+                    src={result.avatar}
+                    alt={result.composer}
+                    className="h-14 w-14 rounded-xl border border-zinc-200 object-cover"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+
+                  <div>
+                    <div className="text-2xl font-bold text-zinc-800">
+                      {item.code}
+                      <span className="ml-3 text-lg font-medium text-zinc-500">
+                        {item.name}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 h-3 overflow-hidden rounded-full bg-zinc-200">
+                      <div
+                        className="h-full rounded-full bg-emerald-700"
+                        style={{ width: `${item.percent * 8}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-3xl font-bold">{item.count.toLocaleString()}</div>
+                    <div className="text-lg text-zinc-500">{item.percent}%</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-8">
+          <button
+            onClick={onBack}
+            className="rounded-2xl bg-emerald-700 px-6 py-4 text-lg font-semibold text-white transition hover:opacity-90"
+          >
+            返回
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${result?.color || "from-zinc-900 to-black"} text-white transition-all duration-700`}>
@@ -266,12 +364,21 @@ const results = {
                 </ul>
               </div>
 
-              <button
-                onClick={() => setStarted(true)}
-                className="rounded-3xl bg-white px-6 py-4 text-lg font-semibold text-zinc-900 shadow-xl transition hover:scale-[1.01] active:scale-[0.99]"
-              >
-                开始测试
-              </button>
+              <div className="grid gap-3 md:grid-cols-2">
+                <button
+                  onClick={() => setStarted(true)}
+                  className="rounded-3xl bg-white px-6 py-4 text-lg font-semibold text-zinc-900 shadow-xl transition hover:scale-[1.01] active:scale-[0.99]"
+                >
+                  开始测试
+                </button>
+
+                <button
+                  onClick={() => setShowRankingPage(true)}
+                  className="rounded-3xl border border-white/20 bg-white/10 px-6 py-4 text-lg font-semibold text-white shadow-xl transition hover:bg-white/20 active:scale-[0.99]"
+                >
+                  排行榜
+                </button>
+              </div>
             </div>
           </>
         )}
@@ -315,6 +422,19 @@ const results = {
               <h2 className="mt-4 text-3xl font-bold md:text-5xl">{result.title}</h2>
               <p className="mt-3 text-white/80">{result.composer} · {result.era}</p>
 
+              <div className="mt-6 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/10 p-4">
+                <img
+                  src={result.avatar}
+                  alt={result.composer}
+                  className="h-20 w-20 rounded-xl border border-white/15 object-cover"
+                  style={{ imageRendering: "pixelated" }}
+                />
+                <div>
+                  <div className="text-sm text-white/60">对应作曲家</div>
+                  <div className="text-lg font-semibold text-white">{result.composer}</div>
+                </div>
+              </div>
+
               <div className="mt-6">
                 <div className="mb-2 text-sm text-white/70">点击播放对应曲子</div>
                 <audio controls className="w-full">
@@ -337,7 +457,14 @@ const results = {
                 <p className="text-white/80">{result.recommendation}</p>
               </div>
 
-              <div className="mt-8 grid gap-3 md:grid-cols-2">
+              <div className="mt-8 grid gap-3 md:grid-cols-3">
+                <button
+                  onClick={() => setShowRankingPage(true)}
+                  className="rounded-2xl border border-white/20 bg-white/10 px-5 py-4 font-semibold text-white transition hover:bg-white/20 active:scale-[0.99]"
+                >
+                  排行榜
+                </button>
+                
                 <button
                   onClick={copyResult}
                   className="rounded-2xl bg-white px-5 py-4 font-semibold text-zinc-900 transition hover:scale-[1.01] active:scale-[0.99]"

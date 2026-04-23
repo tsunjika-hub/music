@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import { toPng } from "html-to-image";
 
 export default function ClassicalPieceQuiz() {
 const results = {
@@ -206,6 +208,7 @@ const results = {
   const [scores, setScores] = useState({});
   const [finished, setFinished] = useState(false);
   const [showRankingPage, setShowRankingPage] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const progress = ((step + 1) / questions.length) * 100;
 
@@ -231,6 +234,9 @@ const results = {
 
   const result = results[resultKey];
 
+  const shareUrl = "https://music-vert-two.vercel.app/";
+
+  const shareCardRef = useRef(null);
     const rankingData = [
     { rank: 1, key: "clair_de_lune", code: "MOON", name: "月光型", count: 3884, percent: 9.5 },
     { rank: 2, key: "spring", code: "SPRING", name: "春风型", count: 3153, percent: 7.7 },
@@ -256,6 +262,25 @@ const results = {
       alert("复制失败，不过你可以手动截图分享");
     }
   };
+
+  const saveResultImage = async () => {
+  if (!shareCardRef.current) return;
+
+  try {
+    const dataUrl = await toPng(shareCardRef.current, {
+      cacheBust: true,
+      pixelRatio: 2,
+    });
+
+    const link = document.createElement("a");
+    link.download = `${result.title}-测试结果.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (error) {
+    console.error("保存图片失败：", error);
+    alert("保存图片失败，请重试");
+  }
+};
 
   if (showRankingPage) {
   return (
@@ -338,7 +363,93 @@ const results = {
     </div>
   );
 }
+  function ShareModal({ open, onClose, result, onSave, shareUrl, cardRef }) {
+  if (!open) return null;
 
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+      <div className="w-full max-w-md rounded-[2rem] border border-zinc-200 bg-[#f6f5f2] p-4 text-zinc-800 shadow-2xl">
+        
+        <div
+          ref={cardRef}
+          className="rounded-[1.5rem] border border-zinc-200 bg-white p-4"
+        >
+          <div className="text-center">
+            <div className="text-sm text-zinc-500">你的古典乐人格类型是</div>
+            <div className="mt-2 text-3xl font-bold text-emerald-700">
+              {result.emoji} {result.title}
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+            <div className="flex items-center gap-4">
+              <img
+                src={result.avatar}
+                alt={result.composer}
+                className="h-24 w-24 rounded-2xl border border-zinc-200 object-cover"
+                style={{ imageRendering: "pixelated" }}
+              />
+
+              <div className="text-left">
+                <div className="text-sm text-zinc-500">对应作曲家</div>
+                <div className="text-lg font-semibold">{result.composer}</div>
+                <div className="mt-1 text-sm text-zinc-500">{result.era}</div>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-xl bg-zinc-100 p-3 text-sm leading-6 text-zinc-700">
+              {result.description}
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {result.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-emerald-100 px-3 py-1 text-xs text-emerald-700"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-between gap-4 rounded-2xl bg-zinc-50 p-4">
+            <div>
+              <div className="text-sm text-zinc-500">扫码再测一次</div>
+              <div className="mt-1 text-sm text-zinc-700 break-all">
+                {shareUrl}
+              </div>
+            </div>
+
+            <div className="shrink-0 rounded-xl bg-white p-2">
+              <QRCodeSVG value={shareUrl} size={88} />
+            </div>
+          </div>
+
+          <div className="mt-4 text-center text-sm text-zinc-500">
+            快来测测你是哪一首古典乐
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-[1fr_auto] gap-3">
+          <button
+            onClick={onSave}
+            className="rounded-2xl bg-emerald-700 px-5 py-4 text-lg font-semibold text-white transition hover:opacity-90"
+          >
+            保存结果
+          </button>
+
+          <button
+            onClick={onClose}
+            className="rounded-2xl border border-zinc-300 bg-white px-6 py-4 text-lg font-semibold text-zinc-700 transition hover:bg-zinc-50"
+          >
+            关闭
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
   return (
     <div className={`min-h-screen bg-gradient-to-br ${result?.color || "from-zinc-900 to-black"} text-white transition-all duration-700`}>
       <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-6 py-8">
@@ -349,8 +460,6 @@ const results = {
               <h1 className="text-4xl font-bold leading-tight md:text-5xl">测测你是什么古典音乐</h1>
               <p className="mx-auto mt-4 max-w-xl text-base text-white/80 md:text-lg">
                 10道题，测出你的气质最像哪一首古典乐。
-                <br />
-                不是专业乐理测试，是适合分享的氛围型人格小网站。
               </p>
             </div>
 
@@ -466,7 +575,7 @@ const results = {
                 </button>
                 
                 <button
-                  onClick={copyResult}
+                  onClick={() => setShowShareModal(true)}
                   className="rounded-2xl bg-white px-5 py-4 font-semibold text-zinc-900 transition hover:scale-[1.01] active:scale-[0.99]"
                 >
                   分享给朋友
@@ -485,6 +594,14 @@ const results = {
         <div className="mt-8 text-center text-xs text-white/60">
           made by ejika
         </div>
+        <ShareModal
+          open={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          result={result}
+          onSave={saveResultImage}
+          shareUrl={shareUrl}
+          cardRef={shareCardRef}
+        />
       </div>
     </div>
   );

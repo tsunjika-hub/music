@@ -1,15 +1,17 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { toPng } from "html-to-image";
+import { supabase } from "./lib/supabase";
 
 export default function ClassicalPieceQuiz() {
 const results = {
   clair_de_lune: {
     title: "你是《月光》",
+    rankTitle: "月光",
     composer: "德彪西 Claude Debussy",
     era: "印象派",
     emoji: "🌙",
-    avatar:"/avatars/debussy.png",
+    avatar: "/avatars/debussy.png",
     color: "from-slate-900 via-indigo-900 to-blue-950",
     tags: ["安静", "细腻", "感受力强", "有一点疏离"],
     description:
@@ -22,11 +24,12 @@ const results = {
 
   spring: {
     title: "你是《四季・春》",
+    rankTitle: "四季・春",
     composer: "维瓦尔第 Antonio Vivaldi",
     era: "巴洛克",
     emoji: "🌿",
-    avatar:"/avatars/vivaldi.png",
-    color: "from-emerald-500 via-lime-400 to-yellow-500",
+    avatar: "/avatars/vivaldi.png",
+    color: "from-emerald-700 via-green-600 to-lime-500",
     tags: ["有活力", "外向", "行动派", "感染力强"],
     description:
       "你带着一种很自然的生命力。你不喜欢一直停在原地，更喜欢开始、尝试、推进。你往往能让身边的人也跟着动起来。",
@@ -38,10 +41,11 @@ const results = {
 
   fifth: {
     title: "你是《命运交响曲》",
+    rankTitle: "命运交响曲",
     composer: "贝多芬 Ludwig van Beethoven",
     era: "古典主义 / 浪漫主义过渡",
     emoji: "⚡",
-    avatar:"/avatars/beethoven.png",
+    avatar: "/avatars/beethoven.png",
     color: "from-zinc-900 via-neutral-800 to-stone-700",
     tags: ["意志强", "不服输", "有压迫感", "能扛事"],
     description:
@@ -53,11 +57,12 @@ const results = {
 
   canon: {
     title: "你是《卡农》",
+    rankTitle: "卡农",
     composer: "帕赫贝尔 Johann Pachelbel",
     era: "巴洛克",
     emoji: "🕊️",
-    avatar:"/avatars/pachelbel.png",
-    color: "from-amber-700 via-orange-700 to-rose-700",
+    avatar: "/avatars/pachelbel.png",
+    color: "from-stone-700 via-amber-700 to-rose-800",
     tags: ["温柔", "稳定", "有陪伴感", "容易被依赖"],
     description:
       "你给人的感觉是舒服和安心。也许你不一定是最锋利的那种类型，但你很稳，也很适合长期关系。很多人会在你身边放松下来。",
@@ -69,10 +74,11 @@ const results = {
 
   lacrimosa: {
     title: "你是《Lacrimosa》",
+    rankTitle: "Lacrimosa",
     composer: "莫扎特 Wolfgang Amadeus Mozart",
     era: "古典主义",
     emoji: "🕯️",
-    avatar:"/avatars/Mozart.png",
+    avatar: "/avatars/Mozart.png",
     color: "from-slate-800 via-slate-700 to-gray-500",
     tags: ["共情力高", "深沉", "记忆感强", "情绪浓"],
     description:
@@ -85,10 +91,11 @@ const results = {
 
   turkish_march: {
     title: "你是《土耳其进行曲》",
+    rankTitle: "土耳其进行曲",
     composer: "莫扎特 Wolfgang Amadeus Mozart",
     era: "古典主义",
     emoji: "🎹",
-    avatar:"/avatars/Mozart.png",
+    avatar: "/avatars/Mozart.png",
     color: "from-pink-400 via-rose-400 to-orange-300",
     tags: ["机灵", "节奏感强", "有趣", "不喜欢无聊"],
     description:
@@ -209,6 +216,10 @@ const results = {
   const [finished, setFinished] = useState(false);
   const [showRankingPage, setShowRankingPage] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [rankingData, setRankingData] = useState([]);
+  const [rankingLoading, setRankingLoading] = useState(false);
+  const hasSubmittedRef = useRef(false);
+  const [totalTests, setTotalTests] = useState(0);  
 
   const progress = ((step + 1) / questions.length) * 100;
 
@@ -233,37 +244,19 @@ const results = {
   }, [scores]);
 
   const result = results[resultKey];
-
   const shareUrl = "https://music-vert-two.vercel.app/";
 
   const shareCardRef = useRef(null);
-    const rankingData = [
-    { rank: 1, key: "clair_de_lune", code: "MOON", name: "月光型", count: 3884, percent: 9.5 },
-    { rank: 2, key: "spring", code: "SPRING", name: "春风型", count: 3153, percent: 7.7 },
-    { rank: 3, key: "fifth", code: "FATE", name: "命运型", count: 3105, percent: 7.6 },
-    { rank: 4, key: "canon", code: "CANON", name: "卡农型", count: 2531, percent: 6.2 },
-    { rank: 5, key: "lacrimosa", code: "REQUIEM", name: "安魂型", count: 2210, percent: 5.4 },
-    { rank: 6, key: "turkish_march", code: "TURKISH", name: "进行曲型", count: 1988, percent: 4.9 },
-  ];
 
   const restart = () => {
     setStarted(false);
     setStep(0);
     setScores({});
     setFinished(false);
-  };
+    hasSubmittedRef.current = false;
+};
 
-  const copyResult = async () => {
-    const text = `我测出来是：${result.title} ${result.emoji}\n${result.composer}\n标签：${result.tags.join(" / ")}\n快来测测你是什么古典乐曲子吧～`;
-    try {
-      await navigator.clipboard.writeText(text);
-      alert("结果文案已复制，可以直接发给朋友了");
-    } catch {
-      alert("复制失败，不过你可以手动截图分享");
-    }
-  };
-
-  const saveResultImage = async () => {
+ const saveResultImage = async () => {
   if (!shareCardRef.current) return;
 
   try {
@@ -281,75 +274,155 @@ const results = {
     alert("保存图片失败，请重试");
   }
 };
+useEffect(() => {
+  if (!finished) return;
+  if (hasSubmittedRef.current) return;
 
-  if (showRankingPage) {
+  const submitResult = async () => {
+    const { error } = await supabase.from("quiz_results").insert([
+      { result_key: resultKey }
+    ]);
+
+    if (error) {
+      console.error("提交结果失败：", error);
+      return;
+    }
+
+    hasSubmittedRef.current = true;
+  };
+
+  submitResult();
+}, [finished, resultKey]);
+
+const fetchRankingData = async () => {
+  setRankingLoading(true);
+
+  const { data, error } = await supabase.rpc("get_quiz_ranking");
+
+  if (error) {
+    console.error("读取排行榜失败：", error);
+    setRankingLoading(false);
+    return;
+  }
+
+  const countsMap = new Map(
+    (data || []).map((item) => [item.result_key, Number(item.total || 0)])
+  );
+
+  const total = Array.from(countsMap.values()).reduce((sum, count) => sum + count, 0);
+  setTotalTests(total);
+
+  const allResults = Object.entries(results).map(([key, value]) => {
+    const count = countsMap.get(key) || 0;
+    const percent = total > 0 ? Number(((count / total) * 100).toFixed(1)) : 0;
+
+    return {
+      key,
+      code: key.toUpperCase(),
+      name: value.title.replace("你是", ""),
+      count,
+      percent,
+    };
+  });
+
+  allResults.sort((a, b) => {
+    if (b.count !== a.count) return b.count - a.count;
+    return a.key.localeCompare(b.key);
+  });
+
+  const ranked = allResults.map((item, index) => ({
+    ...item,
+    rank: index + 1,
+  }));
+
+  setRankingData(ranked);
+  setRankingLoading(false);
+};
+
+const openRankingPage = async () => {
+  await fetchRankingData();
+  setShowRankingPage(true);
+};
+
+if (showRankingPage) {
   return (
     <RankingPage
       rankingData={rankingData}
       results={results}
+      loading={rankingLoading}
+      totalTests={totalTests}
       onBack={() => setShowRankingPage(false)}
     />
-   );
-  }
-
-  function RankingPage({ rankingData, results, onBack }) {
+  );
+}
+  
+function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
   return (
     <div className="min-h-screen bg-[#f0f2ee] px-6 py-10 text-zinc-800">
       <div className="mx-auto max-w-4xl">
         <h1 className="text-4xl font-bold md:text-5xl">古典乐结果排行榜</h1>
 
         <p className="mt-4 text-lg leading-8 text-zinc-600">
-          这里展示不同测试结果的人气分布。当前先使用演示数据，后续可以接入真实统计。
+          这里展示不同测试结果的人气分布。当前已接入真实统计。
         </p>
 
         <div className="mt-6 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-6 py-3 text-lg font-semibold text-emerald-700">
-          已有 40,998 人完成测试
+          已有 {totalTests.toLocaleString()} 人完成测试
         </div>
+        {loading && (
+          <div className="mt-6 rounded-2xl bg-white p-4 text-lg text-zinc-500 shadow-sm">
+            排行榜加载中...
+          </div>
+        )}
 
-        <div className="mt-8 space-y-4">
-          {rankingData.map((item) => {
-            const result = results[item.key];
+        {!loading && (
+          <div className="mt-8 space-y-4">
+            {rankingData.map((item) => {
+              const result = results[item.key];
 
-            return (
-              <div
-                key={item.key}
-                className="rounded-[1.75rem] border border-zinc-200 bg-white p-5 shadow-sm"
-              >
-                <div className="grid grid-cols-[56px_64px_1fr_auto] items-center gap-4">
-                  <div className="text-4xl font-bold text-amber-500">{item.rank}</div>
+              return (
+                <div
+                  key={item.key}
+                  className="rounded-[1.75rem] border border-zinc-200 bg-white p-5 shadow-sm"
+                >
+                  <div className="grid grid-cols-[56px_64px_1fr_auto] items-center gap-4">
+                    <div className="text-4xl font-bold text-amber-500">{item.rank}</div>
 
-                  <img
-                    src={result.avatar}
-                    alt={result.composer}
-                    className="h-14 w-14 rounded-xl border border-zinc-200 object-cover"
-                    style={{ imageRendering: "pixelated" }}
-                  />
+                    <img
+                      src={result.avatar}
+                      alt={result.composer}
+                      className="h-14 w-14 rounded-xl border border-zinc-200 object-cover"
+                      style={{ imageRendering: "pixelated" }}
+                    />
 
-                  <div>
-                    <div className="text-2xl font-bold text-zinc-800">
-                      {item.code}
-                      <span className="ml-3 text-lg font-medium text-zinc-500">
-                        {item.name}
-                      </span>
+                    <div>
+                      <div className="flex items-baseline gap-3 flex-wrap">
+                        <span className="text-3xl font-extrabold text-zinc-900">
+                          {result.rankTitle}
+                        </span>
+                        <span className="text-base font-medium text-zinc-500">
+                          {result.composer}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 h-3 overflow-hidden rounded-full bg-zinc-200">
+                        <div
+                          className="h-full rounded-full bg-emerald-700"
+                          style={{ width: `${Math.max(item.percent, item.count > 0 ? 8 : 0)}%` }}
+                        />
+                      </div>
                     </div>
 
-                    <div className="mt-3 h-3 overflow-hidden rounded-full bg-zinc-200">
-                      <div
-                        className="h-full rounded-full bg-emerald-700"
-                        style={{ width: `${item.percent * 8}%` }}
-                      />
+                    <div className="text-right">
+                      <div className="text-3xl font-bold">{item.count.toLocaleString()}</div>
+                      <div className="text-lg text-zinc-500">{item.percent}%</div>
                     </div>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-3xl font-bold">{item.count.toLocaleString()}</div>
-                    <div className="text-lg text-zinc-500">{item.percent}%</div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="mt-8">
           <button
@@ -363,6 +436,7 @@ const results = {
     </div>
   );
 }
+
   function ShareModal({ open, onClose, result, onSave, shareUrl, cardRef }) {
   if (!open) return null;
 
@@ -482,7 +556,7 @@ const results = {
                 </button>
 
                 <button
-                  onClick={() => setShowRankingPage(true)}
+                  onClick={openRankingPage}
                   className="rounded-3xl border border-white/20 bg-white/10 px-6 py-4 text-lg font-semibold text-white shadow-xl transition hover:bg-white/20 active:scale-[0.99]"
                 >
                   排行榜
@@ -568,7 +642,7 @@ const results = {
 
               <div className="mt-8 grid gap-3 md:grid-cols-3">
                 <button
-                  onClick={() => setShowRankingPage(true)}
+                  onClick={openRankingPage}
                   className="rounded-2xl border border-white/20 bg-white/10 px-5 py-4 font-semibold text-white transition hover:bg-white/20 active:scale-[0.99]"
                 >
                   排行榜

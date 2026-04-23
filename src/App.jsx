@@ -7,6 +7,7 @@ const results = {
     composer: "德彪西 Claude Debussy",
     era: "印象派",
     emoji: "🌙",
+    avatar:"/avatars/debussy.png",
     color: "from-slate-900 via-indigo-900 to-blue-950",
     tags: ["安静", "细腻", "感受力强", "有一点疏离"],
     description:
@@ -22,6 +23,7 @@ const results = {
     composer: "维瓦尔第 Antonio Vivaldi",
     era: "巴洛克",
     emoji: "🌿",
+    avatar:"/avatars/vivaldi.png",
     color: "from-emerald-500 via-lime-400 to-yellow-500",
     tags: ["有活力", "外向", "行动派", "感染力强"],
     description:
@@ -37,6 +39,7 @@ const results = {
     composer: "贝多芬 Ludwig van Beethoven",
     era: "古典主义 / 浪漫主义过渡",
     emoji: "⚡",
+    avatar:"/avatars/beethoven.png",
     color: "from-zinc-900 via-neutral-800 to-stone-700",
     tags: ["意志强", "不服输", "有压迫感", "能扛事"],
     description:
@@ -51,6 +54,7 @@ const results = {
     composer: "帕赫贝尔 Johann Pachelbel",
     era: "巴洛克",
     emoji: "🕊️",
+    avatar:"/avatars/pachelbel.png",
     color: "from-amber-700 via-orange-700 to-rose-700",
     tags: ["温柔", "稳定", "有陪伴感", "容易被依赖"],
     description:
@@ -66,6 +70,7 @@ const results = {
     composer: "莫扎特 Wolfgang Amadeus Mozart",
     era: "古典主义",
     emoji: "🕯️",
+    avatar:"/avatars/mozart.png",
     color: "from-slate-800 via-slate-700 to-gray-500",
     tags: ["共情力高", "深沉", "记忆感强", "情绪浓"],
     description:
@@ -81,6 +86,7 @@ const results = {
     composer: "莫扎特 Wolfgang Amadeus Mozart",
     era: "古典主义",
     emoji: "🎹",
+    avatar:"/avatars/mozart.png",
     color: "from-pink-400 via-rose-400 to-orange-300",
     tags: ["机灵", "节奏感强", "有趣", "不喜欢无聊"],
     description:
@@ -314,6 +320,19 @@ const results = {
               <div className="mt-4 text-6xl">{result.emoji}</div>
               <h2 className="mt-4 text-3xl font-bold md:text-5xl">{result.title}</h2>
               <p className="mt-3 text-white/80">{result.composer} · {result.era}</p>
+
+              <div className="mt-6 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/10 p-4">
+                <img
+                  src={result.avatar}
+                  alt={result.composer}
+                  className="h-20 w-20 rounded-xl border border-white/15 object-cover"
+                  style={{ imageRendering: "pixelated" }}
+                />
+                <div>
+                  <div className="text-sm text-white/60">对应作曲家</div>
+                  <div className="text-lg font-semibold text-white">{result.composer}</div>
+                </div>
+              </div>
 
               <div className="mt-6">
                 <div className="mb-2 text-sm text-white/70">点击播放对应曲子</div>

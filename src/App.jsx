@@ -70,7 +70,7 @@ const results = {
     composer: "莫扎特 Wolfgang Amadeus Mozart",
     era: "古典主义",
     emoji: "🕯️",
-    avatar:"/avatars/mozart.png",
+    avatar:"/avatars/Mozart.png",
     color: "from-slate-800 via-slate-700 to-gray-500",
     tags: ["共情力高", "深沉", "记忆感强", "情绪浓"],
     description:
@@ -86,7 +86,7 @@ const results = {
     composer: "莫扎特 Wolfgang Amadeus Mozart",
     era: "古典主义",
     emoji: "🎹",
-    avatar:"/avatars/mozart.png",
+    avatar:"/avatars/Mozart.png",
     color: "from-pink-400 via-rose-400 to-orange-300",
     tags: ["机灵", "节奏感强", "有趣", "不喜欢无聊"],
     description:

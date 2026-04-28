@@ -4,6 +4,112 @@ import { toPng } from "html-to-image";
 import { supabase } from "./lib/supabase";
 
 export default function ClassicalPieceQuiz() {
+  const [lang, setLang] = useState("zh");
+
+  const ui = {
+    zh: {
+      language: "语言",
+      chinese: "中文",
+      japanese: "日本語",
+      english: "english",
+      header: "CLASSICAL MUSIC TYPE",
+      title: "测测你是什么古典音乐",
+      subtitle: "10道题，测出你的气质最像哪一首古典乐。",
+      youWillGet: "你会得到",
+      get1: "你的专属曲子结果",
+      get2: "性格标签 + 氛围说明",
+      get3: "相似古典曲目推荐",
+      start: "开始测试",
+      ranking: "排行榜",
+      chooseTip: "认真一点，选最像你的",
+      resultLabel: "你的测试结果",
+      composerLabel: "对应作曲家",
+      playMusic: "点击播放对应曲子",
+      share: "分享给朋友",
+      restart: "再测一次",
+      back: "返回",
+      rankingTitle: "古典乐结果排行榜",
+      rankingDesc: "这里展示不同测试结果的人气分布。当前已接入真实统计。",
+      totalTests: "已有",
+      totalTestsEnd: "人完成测试",
+      loading: "排行榜加载中...",
+      shareType: "你的古典乐人格类型是",
+      scanAgain: "扫码再测一次",
+      shareFooter: "快来测测你是哪一首古典乐",
+      saveResult: "保存结果",
+      close: "关闭",
+      browserNoAudio: "你的浏览器不支持音频播放。",
+    },
+    ja: {
+      language: "言語",
+      chinese: "中文",
+      japanese: "日本語",
+      english: "english",
+      header: "CLASSICAL MUSIC TYPE",
+      title: "あなたはどんなクラシック音楽？",
+      subtitle: "10問で、あなたの雰囲気に一番近いクラシック曲を診断します。",
+      youWillGet: "診断でわかること",
+      get1: "あなた専用のクラシック曲タイプ",
+      get2: "性格タグ + 雰囲気説明",
+      get3: "似ているクラシック曲のおすすめ",
+      start: "診断を始める",
+      ranking: "ランキング",
+      chooseTip: "一番自分に近いものを選んでください",
+      resultLabel: "あなたの診断結果",
+      composerLabel: "対応する作曲家",
+      playMusic: "対応する曲を再生",
+      share: "友達にシェア",
+      restart: "もう一度診断",
+      back: "戻る",
+      rankingTitle: "クラシック診断ランキング",
+      rankingDesc: "ここでは診断結果の人気分布を表示します。現在は実際の統計に接続されています。",
+      totalTests: "すでに",
+      totalTestsEnd: "人が診断しました",
+      loading: "ランキングを読み込み中...",
+      shareType: "あなたのクラシック音楽タイプは",
+      scanAgain: "QRコードでもう一度診断",
+      shareFooter: "あなたはどのクラシック曲タイプ？",
+      saveResult: "結果を保存",
+      close: "閉じる",
+      browserNoAudio: "お使いのブラウザは音声再生に対応していません。",
+    },
+    en: {
+      language: "Language",
+      chinese: "CN",
+      japanese: "JP",
+      english: "EN",
+      header: "CLASSICAL MUSIC TYPE",
+      title: "Which classical piece are you?",
+      subtitle: "Answer 10 questions and find the classical piece that matches your vibe.",
+      youWillGet: "You will get",
+      get1: "Your personal classical music type",
+      get2: "Personality tags + vibe description",
+      get3: "Similar classical music recommendations",
+      start: "Start Quiz",
+      ranking: "Ranking",
+      chooseTip: "Choose the one that feels most like you",
+      resultLabel: "Your result",
+      composerLabel: "Composer",
+      playMusic: "Play the matching piece",
+      share: "Share with friends",
+      restart: "Try again",
+      back: "Back",
+      rankingTitle: "Classical Music Result Ranking",
+      rankingDesc: "This page shows the popularity distribution of different quiz results. Real statistics are connected.",
+      totalTests: "",
+      totalTestsEnd: " people have completed the quiz",
+      loading: "Loading ranking...",
+      shareType: "Your classical music personality type is",
+      scanAgain: "Scan to try again",
+      shareFooter: "Find out which classical piece you are",
+      saveResult: "Save result",
+      close: "Close",
+      browserNoAudio: "Your browser does not support audio playback.",
+    },
+  };
+
+  const t = ui[lang];
+
 const results = {
   clair_de_lune: {
     title: "你是《月光》",
@@ -352,26 +458,27 @@ if (showRankingPage) {
       loading={rankingLoading}
       totalTests={totalTests}
       onBack={() => setShowRankingPage(false)}
+      t={t}
     />
   );
 }
   
-function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
+function RankingPage({ rankingData, results, onBack, loading, totalTests, t }) {
   return (
     <div className="min-h-screen bg-[#f0f2ee] px-6 py-10 text-zinc-800">
       <div className="mx-auto max-w-4xl">
-        <h1 className="text-4xl font-bold md:text-5xl">古典乐结果排行榜</h1>
+        <h1 className="text-4xl font-bold md:text-5xl">{t.rankingTitle}</h1>
 
         <p className="mt-4 text-lg leading-8 text-zinc-600">
-          这里展示不同测试结果的人气分布。当前已接入真实统计。
+          {t.rankingDesc}
         </p>
 
         <div className="mt-6 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-6 py-3 text-lg font-semibold text-emerald-700">
-          已有 {totalTests.toLocaleString()} 人完成测试
+          {t.totalTests} {totalTests.toLocaleString()} {t.totalTestsEnd}
         </div>
         {loading && (
           <div className="mt-6 rounded-2xl bg-white p-4 text-lg text-zinc-500 shadow-sm">
-            排行榜加载中...
+            {t.loading}
           </div>
         )}
 
@@ -429,7 +536,7 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
             onClick={onBack}
             className="rounded-2xl bg-emerald-700 px-6 py-4 text-lg font-semibold text-white transition hover:opacity-90"
           >
-            返回
+            {t.back}
           </button>
         </div>
       </div>
@@ -437,7 +544,7 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
   );
 }
 
-  function ShareModal({ open, onClose, result, onSave, shareUrl, cardRef }) {
+  function ShareModal({ open, onClose, result, onSave, shareUrl, cardRef, t }) {
   if (!open) return null;
 
   return (
@@ -449,7 +556,7 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
           className="rounded-[1.5rem] border border-zinc-200 bg-white p-4"
         >
           <div className="text-center">
-            <div className="text-sm text-zinc-500">你的古典乐人格类型是</div>
+            <div className="text-sm text-zinc-500">{t.shareType}</div>
             <div className="mt-2 text-3xl font-bold text-emerald-700">
               {result.emoji} {result.title}
             </div>
@@ -465,7 +572,7 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
               />
 
               <div className="text-left">
-                <div className="text-sm text-zinc-500">对应作曲家</div>
+                <div className="text-sm text-zinc-500">{t.composerLabel}</div>
                 <div className="text-lg font-semibold">{result.composer}</div>
                 <div className="mt-1 text-sm text-zinc-500">{result.era}</div>
               </div>
@@ -489,7 +596,7 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
 
           <div className="mt-6 flex items-center justify-between gap-4 rounded-2xl bg-zinc-50 p-4">
             <div>
-              <div className="text-sm text-zinc-500">扫码再测一次</div>
+              <div className="text-sm text-zinc-500">{t.scanAgain}</div>
               <div className="mt-1 text-sm text-zinc-700 break-all">
                 {shareUrl}
               </div>
@@ -501,7 +608,7 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
           </div>
 
           <div className="mt-4 text-center text-sm text-zinc-500">
-            快来测测你是哪一首古典乐
+            {t.shareFooter}
           </div>
         </div>
 
@@ -510,7 +617,7 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
             onClick={onSave}
             className="rounded-2xl bg-emerald-700 px-5 py-4 text-lg font-semibold text-white transition hover:opacity-90"
           >
-            保存结果
+            {t.saveResult}
           </button>
 
           <button
@@ -527,23 +634,56 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
   return (
     <div className={`min-h-screen bg-gradient-to-br ${result?.color || "from-zinc-900 to-black"} text-white transition-all duration-700`}>
       <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-6 py-8">
+                <div className="mb-4 flex justify-end">
+          <div className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-sm text-white backdrop-blur-md">
+            <span className="text-white/70">{t.language}</span>
+
+            <button
+              onClick={() => setLang("zh")}
+              className={`rounded-full px-3 py-1 transition ${
+                lang === "zh" ? "bg-white text-zinc-900" : "text-white hover:bg-white/10"
+              }`}
+            >
+              {t.chinese}
+            </button>
+
+            <button
+              onClick={() => setLang("ja")}
+              className={`rounded-full px-3 py-1 transition ${
+                lang === "ja" ? "bg-white text-zinc-900" : "text-white hover:bg-white/10"
+              }`}
+            >
+              {t.japanese}
+            </button>
+
+            <button
+              onClick={() => setLang("en")}
+              className={`rounded-full px-3 py-1 transition ${
+                lang === "en" ? "bg-white text-zinc-900" : "text-white hover:bg-white/10"
+              }`}
+            >
+              {t.english}
+            </button>
+          </div>
+        </div>
+
         {!started && !finished && (
           <>
             <div className="mt-10 mb-8 text-center">
-              <div className="mb-4 text-sm tracking-[0.35em] text-white/70">CLASSICAL MUSIC TYPE</div>
-              <h1 className="text-4xl font-bold leading-tight md:text-5xl">测测你是什么古典音乐</h1>
+              <div className="mb-4 text-sm tracking-[0.35em] text-white/70">{t.header}</div>
+              <h1 className="text-4xl font-bold leading-tight md:text-5xl">{t.title}</h1>
               <p className="mx-auto mt-4 max-w-xl text-base text-white/80 md:text-lg">
-                10道题，测出你的气质最像哪一首古典乐。
+                {t.subtitle}
               </p>
             </div>
 
             <div className="grid gap-4">
               <div className="rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-md shadow-2xl">
-                <div className="mb-3 text-sm text-white/70">你会得到</div>
+                <div className="mb-3 text-sm text-white/70">{t.youWillGet}</div>
                 <ul className="space-y-2 text-white/90 text-sm md:text-base">
-                  <li>• 你的专属曲子结果</li>
-                  <li>• 性格标签 + 氛围说明</li>
-                  <li>• 相似古典曲目推荐</li>
+                  <li>• {t.get1}</li>
+                  <li>• {t.get2}</li>
+                  <li>• {t.get3}</li>
                 </ul>
               </div>
 
@@ -552,14 +692,14 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
                   onClick={() => setStarted(true)}
                   className="rounded-3xl bg-white px-6 py-4 text-lg font-semibold text-zinc-900 shadow-xl transition hover:scale-[1.01] active:scale-[0.99]"
                 >
-                  开始测试
+                  {t.start}
                 </button>
 
                 <button
                   onClick={openRankingPage}
                   className="rounded-3xl border border-white/20 bg-white/10 px-6 py-4 text-lg font-semibold text-white shadow-xl transition hover:bg-white/20 active:scale-[0.99]"
                 >
-                  排行榜
+                  {t.ranking}
                 </button>
               </div>
             </div>
@@ -600,7 +740,7 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
         {finished && (
           <div className="my-auto">
             <div className="rounded-[2rem] border border-white/15 bg-white/10 p-6 md:p-8 backdrop-blur-md shadow-2xl">
-              <div className="text-sm tracking-[0.3em] text-white/70">你的测试结果</div>
+              <div className="text-sm tracking-[0.3em] text-white/70">{t.resultLabel}</div>
               <div className="mt-4 text-6xl">{result.emoji}</div>
               <h2 className="mt-4 text-3xl font-bold md:text-5xl">{result.title}</h2>
               <p className="mt-3 text-white/80">{result.composer} · {result.era}</p>
@@ -613,16 +753,16 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
                   style={{ imageRendering: "pixelated" }}
                 />
                 <div>
-                  <div className="text-sm text-white/60">对应作曲家</div>
+                 <div className="text-sm text-white/60">{t.composerLabel}</div>
                   <div className="text-lg font-semibold text-white">{result.composer}</div>
                 </div>
               </div>
 
               <div className="mt-6">
-                <div className="mb-2 text-sm text-white/70">点击播放对应曲子</div>
+                <div className="mb-2 text-sm text-white/70">{t.playMusic}</div>
                 <audio controls className="w-full">
                   <source src={result.audio} type="audio/mpeg" />
-                  你的浏览器不支持音频播放。
+                  {t.browserNoAudio}
                 </audio>
               </div>
 
@@ -645,20 +785,20 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
                   onClick={openRankingPage}
                   className="rounded-2xl border border-white/20 bg-white/10 px-5 py-4 font-semibold text-white transition hover:bg-white/20 active:scale-[0.99]"
                 >
-                  排行榜
+                  {t.ranking}
                 </button>
                 
                 <button
                   onClick={() => setShowShareModal(true)}
                   className="rounded-2xl bg-white px-5 py-4 font-semibold text-zinc-900 transition hover:scale-[1.01] active:scale-[0.99]"
                 >
-                  分享给朋友
+                  {t.share}
                 </button>
                 <button
                   onClick={restart}
                   className="rounded-2xl border border-white/20 bg-transparent px-5 py-4 font-semibold text-white transition hover:bg-white/10 active:scale-[0.99]"
                 >
-                  再测一次
+                  {t.restart}
                 </button>
               </div>
             </div>
@@ -675,6 +815,7 @@ function RankingPage({ rankingData, results, onBack, loading, totalTests }) {
           onSave={saveResultImage}
           shareUrl={shareUrl}
           cardRef={shareCardRef}
+          t={t}
         />
       </div>
     </div>
